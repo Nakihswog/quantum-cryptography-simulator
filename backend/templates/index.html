@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Cryptography Simulator</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+
+            background: linear-gradient(
+                135deg,
+                #020617,
+                #0f172a,
+                #111827
+            );
+
+            color: white;
+
+            font-family: Arial, sans-serif;
+
+            min-height: 100vh;
+
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+
+        body::before {
+
+            content: "";
+
+            position: fixed;
+
+            width: 200%;
+            height: 200%;
+
+            background:
+                radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+
+            background-size: 40px 40px;
+
+            animation: moveBackground 25s linear infinite;
+
+            z-index: -1;
+        }
+
+        @keyframes moveBackground {
+
+            from {
+                transform: translate(0,0);
+            }
+
+            to {
+                transform: translate(-200px,-200px);
+            }
+        }
+
+        /* Header */
+
+        .header {
+
+            text-align: center;
+
+            padding: 25px;
+
+            font-size: 38px;
+
+            font-weight: bold;
+
+            color: cyan;
+
+            text-shadow:
+                0px 0px 10px cyan,
+                0px 0px 20px cyan;
+
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+
+            background-color: rgba(15,23,42,0.8);
+
+            backdrop-filter: blur(10px);
+        }
+
+        /* Button */
+
+        .button-container {
+
+            text-align: center;
+
+            margin-top: 30px;
+        }
+
+        button {
+
+            background: linear-gradient(
+                45deg,
+                cyan,
+                #00bfff
+            );
+
+            color: black;
+
+            border: none;
+
+            padding: 16px 35px;
+
+            border-radius: 12px;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            transition: 0.3s ease;
+
+            box-shadow:
+                0px 0px 15px cyan;
+        }
+
+        button:hover {
+
+            transform: scale(1.08);
+
+            box-shadow:
+                0px 0px 30px cyan,
+                0px 0px 60px cyan;
+        }
+
+        /* Status Animation */
+
+        .simulation-status {
+
+            text-align: center;
+
+            margin-top: 20px;
+
+            font-size: 22px;
+
+            color: cyan;
+
+            height: 40px;
+
+            text-shadow:
+                0px 0px 15px cyan;
+        }
+
+        .loading {
+
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Layout */
+
+        .container {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 25px;
+
+            padding: 40px;
+
+            flex-wrap: wrap;
+        }
+
+        /* Cards */
+
+        .card {
+
+            width: 350px;
+
+            padding: 25px;
+
+            border-radius: 20px;
+
+            backdrop-filter: blur(12px);
+
+            transition: 0.3s ease;
+
+            border: 1px solid rgba(255,255,255,0.1);
+
+            opacity: 0;
+
+            transform: translateY(30px);
+
+            animation: fadeIn 0.8s forwards;
+        }
+
+        @keyframes fadeIn {
+
+            to {
+
+                opacity: 1;
+
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+
+            transform: translateY(-10px);
+        }
+
+        /* Ghost */
+
+        .ghost-card {
+
+            background: rgba(0,255,255,0.08);
+
+            box-shadow:
+                0px 0px 20px rgba(0,255,255,0.2);
+        }
+
+        .ghost-card h2 {
+
+            color: cyan;
+
+            text-shadow:
+                0px 0px 10px cyan;
+        }
+
+        .ghost-card:hover {
+
+            box-shadow:
+                0px 0px 25px cyan,
+                0px 0px 50px rgba(0,255,255,0.4);
+        }
+
+        /* Rolex */
+
+        .rolex-card {
+
+            background: rgba(255,0,0,0.08);
+
+            box-shadow:
+                0px 0px 20px rgba(255,0,0,0.2);
+        }
+
+        .rolex-card h2 {
+
+            color: #ff4d4d;
+
+            text-shadow:
+                0px 0px 10px red;
+        }
+
+        .rolex-card:hover {
+
+            box-shadow:
+                0px 0px 25px red,
+                0px 0px 50px rgba(255,0,0,0.4);
+        }
+
+        /* Leo */
+
+        .leo-card {
+
+            background: rgba(0,255,100,0.08);
+
+            box-shadow:
+                0px 0px 20px rgba(0,255,100,0.2);
+        }
+
+        .leo-card h2 {
+
+            color: #00ff99;
+
+            text-shadow:
+                0px 0px 10px lime;
+        }
+
+        .leo-card:hover {
+
+            box-shadow:
+                0px 0px 25px lime,
+                0px 0px 50px rgba(0,255,100,0.4);
+        }
+
+        .card h2 {
+
+            text-align: center;
+
+            margin-bottom: 20px;
+
+            font-size: 28px;
+        }
+
+        /* Data */
+
+        .data-box {
+
+            background-color: rgba(2,6,23,0.8);
+
+            border-radius: 12px;
+
+            padding: 12px;
+
+            margin-bottom: 15px;
+
+            border: 1px solid rgba(255,255,255,0.08);
+
+            overflow-x: auto;
+        }
+
+        .data-box strong {
+
+            color: white;
+        }
+
+        /* Footer Status */
+
+        .status {
+
+            text-align: center;
+
+            padding-bottom: 40px;
+        }
+
+        #qber {
+
+            font-size: 28px;
+
+            color: cyan;
+
+            margin-bottom: 15px;
+
+            text-shadow:
+                0px 0px 15px cyan;
+        }
+
+        #securityStatus {
+
+            font-size: 24px;
+
+            font-weight: bold;
+        }
+
+        @media(max-width:1100px){
+
+            .container {
+
+                flex-direction: column;
+
+                align-items: center;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+        Quantum Cryptography Simulator
+    </div>
+
+    <div class="button-container">
+
+        <button onclick="runSimulation()">
+            Run Quantum Simulation
+        </button>
+
+    </div>
+
+    <div class="simulation-status loading" id="simulationStatus">
+        Awaiting Simulation...
+    </div>
+
+    <div class="container">
+
+        <!-- Ghost -->
+
+        <div class="card ghost-card">
+
+            <h2>Ghost</h2>
+
+            <div class="data-box">
+                <strong>Bits:</strong>
+                <p id="ghostBits"></p>
+            </div>
+
+            <div class="data-box">
+                <strong>Bases:</strong>
+                <p id="ghostBases"></p>
+            </div>
+
+            <div class="data-box">
+                <strong>Qubits:</strong>
+                <p id="ghostQubits"></p>
+            </div>
+
+        </div>
+
+        <!-- Rolex -->
+
+        <div class="card rolex-card">
+
+            <h2>Rolex</h2>
+
+            <div class="data-box">
+                <strong>Bases:</strong>
+                <p id="rolexBases"></p>
+            </div>
+
+            <div class="data-box">
+                <strong>Intercepted Bits:</strong>
+                <p id="interceptedBits"></p>
+            </div>
+
+        </div>
+
+        <!-- Leo -->
+
+        <div class="card leo-card">
+
+            <h2>Leo</h2>
+
+            <div class="data-box">
+                <strong>Bases:</strong>
+                <p id="leoBases"></p>
+            </div>
+
+            <div class="data-box">
+                <strong>Measured Bits:</strong>
+                <p id="leoResults"></p>
+            </div>
+
+            <div class="data-box">
+                <strong>Shared Key:</strong>
+                <p id="sharedKey"></p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="status">
+
+        <p id="qber"></p>
+
+        <p id="securityStatus"></p>
+
+    </div>
+
+    <script>
+
+        function delay(ms) {
+
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function runSimulation() {
+
+            const status = document.getElementById('simulationStatus');
+
+            status.innerText = "Establishing Quantum Channel...";
+            await delay(800);
+
+            status.innerText = "Encoding Qubits...";
+            await delay(800);
+
+            status.innerText = "Rolex Intercepting Transmission...";
+            await delay(800);
+
+            status.innerText = "Leo Measuring Qubits...";
+            await delay(800);
+
+            status.innerText = "Calculating QBER...";
+            await delay(800);
+
+            const response = await fetch('/simulate');
+
+            const data = await response.json();
+
+            status.innerText = "Simulation Complete";
+
+            document.getElementById('ghostBits').innerText =
+                data.ghost_bits;
+
+            document.getElementById('ghostBases').innerText =
+                data.ghost_bases;
+
+            document.getElementById('ghostQubits').innerText =
+                data.ghost_qubits;
+
+            document.getElementById('rolexBases').innerText =
+                data.rolex_bases;
+
+            document.getElementById('interceptedBits').innerText =
+                data.intercepted_bits;
+
+            document.getElementById('leoBases').innerText =
+                data.leo_bases;
+
+            document.getElementById('leoResults').innerText =
+                data.leo_results;
+
+            document.getElementById('sharedKey').innerText =
+                data.shared_key;
+
+            document.getElementById('qber').innerText =
+                "QBER: " + data.qber + "%";
+
+            document.getElementById('securityStatus').innerText =
+                data.security_status;
+
+            if(data.qber > 0){
+
+                document.getElementById('securityStatus').style.color =
+                    "#ff4d4d";
+
+            } else {
+
+                document.getElementById('securityStatus').style.color =
+                    "#00ff99";
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
